@@ -3,13 +3,13 @@ const {
     verifyRegistrationResponse,
 } = require('@simplewebauthn/server');
 
-const User = require('../models/User');
+const User = require('../models/user');
 
 const rpName = 'SimpleWebAuthn Example';
 const rpID = 'localhost';
 const origin = `https://${rpID}`;
 
-exports.generateRegistrationOptions = async (req, res, next) => {
+exports.registerRequest = async (req, res, next) => {
     try {
         const user = req.session.user;
         const userAuthenticators = user.authenticators;
@@ -19,15 +19,22 @@ exports.generateRegistrationOptions = async (req, res, next) => {
             rpID,
             userID: user.id,
             userName: user.username,
-            // Don't prompt users for additional information about the authenticator
-            // (Recommended for smoother UX)
-            attestationType: 'indirect',
             // Prevent users from re-registering existing authenticators
             excludeCredentials: userAuthenticators.map(authenticator => ({
                 id: authenticator.credentialID,
                 type: 'public-key',
             })),
+            authenticatorSelection: {
+                authenticatorAttachment: 'platform',
+                userVerification: 'required',
+            },
         });
+
+        options.pubKeyCredParams = [];
+        const params = [-7, -257];
+        for (let param of params) {
+            options.pubKeyCredParams.push({ type: 'public-key', alg: param });
+        }
 
         req.session.userChallenge = options.challenge;
 
@@ -41,9 +48,9 @@ exports.generateRegistrationOptions = async (req, res, next) => {
     }
 }
 
-exports.startRegistration = async (req, res, next) => {
+exports.registerResponse = async (req, res, next) => {
     try {
-
+        const { body } = req;
         const expectedChallenge = req.session.userChallenge;
         let verification = await verifyRegistrationResponse({
             credential: body,
@@ -74,7 +81,7 @@ exports.startRegistration = async (req, res, next) => {
         if (!user) {
             throw new ErrorResponse('Could not add user', 404);
         }
-
+        delete req.session.challenge;
     } catch (error) {
         next(error);
     }
