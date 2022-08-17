@@ -1,4 +1,4 @@
-import ErrorResponse from "../utils/errorResponse";
+const ErrorResponse = require("../utils/errorResponse");
 
 const checkSession = (req, res, next) => {
     if (req.session.isLoggedIn) {

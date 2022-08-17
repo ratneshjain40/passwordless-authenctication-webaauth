@@ -10,6 +10,7 @@ const connectDb = require("./utils/connectDb");
 const db = connectDb();
 
 const auth = require("./routes/auth");
+const webauthn = require("./routes/webauthn");
 const error = require("./middlewares/error");
 
 //-------------- GENERAL SETUP ----------------
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 //-------------- Routes Middleware ----------------
 
 app.use("/auth", auth);
+app.use("/webauthn", webauthn);
 
 //-------------- Error Middleware ----------------
 
