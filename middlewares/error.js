@@ -1,9 +1,10 @@
 // Can throw a custom error with next(new ErrorResponse(message, statusCode))
+const logger = require('../logging/logger');
 const ErrorResponse = require('../utils/errorResponse');
 
 errorHandler = (err, req, res, next) => {
 	// log error
-	console.log(err);
+	logger.error(err);
 
 	// Copy of error
 	let error = err;
