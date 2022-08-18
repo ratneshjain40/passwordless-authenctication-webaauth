@@ -60,6 +60,22 @@ exports.registerResponse = async (req, res, next) => {
         });
 
         if (verification.verified) {
+            const { registrationInfo } = verification;
+            const { credentialPublicKey, credentialID, counter } = registrationInfo;
+
+            const newAuthenticator = {
+                credentialID,
+                credentialPublicKey,
+                counter,
+            };
+
+            const user = await User.findByIdAndUpdate(req.session.user.id, { $push: { authenticators: newAuthenticator } });
+            if (!user) {
+                throw new ErrorResponse('Could not add user', 404);
+            }
+
+            delete req.session.challenge;
+
             res.status(200).json({
                 success: true,
                 message: 'Registration successful',
@@ -68,23 +84,72 @@ exports.registerResponse = async (req, res, next) => {
             throw new ErrorResponse('Registration failed', 500);
         }
 
-        const { registrationInfo } = verification;
-        const { credentialPublicKey, credentialID, counter } = registrationInfo;
-
-        const newAuthenticator = {
-            credentialID,
-            credentialPublicKey,
-            counter,
-        };
-
-        const user = await User.findByIdAndUpdate(req.session.user.id, { $push: { authenticators: newAuthenticator } });
-        if (!user) {
-            throw new ErrorResponse('Could not add user', 404);
-        }
-        delete req.session.challenge;
     } catch (error) {
         next(error);
     }
 }
 
+exports.signInRequest = async (req, res, next) => {
+    try {
+        const user = req.session.user;
+        const userAuthenticators = user.authenticators;
 
+        const options = generateAuthenticationOptions({
+            // Require users to use a previously-registered authenticator
+            allowCredentials: userAuthenticators.map(authenticator => ({
+                id: authenticator.credentialID,
+                type: 'public-key',
+            })),
+            userVerification: 'required',
+        });
+
+        req.session.userChallenge = options.challenge;
+
+        res.status(200).json({
+            success: true,
+            options,
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.signInResponse = async (req, res, next) => {
+    try {
+        const { body } = req;
+        const user = req.session.user;
+        const expectedChallenge = req.session.userChallenge;
+        const authenticator = await User.find({ 'authenticators.credentialID': body.id });
+
+        if (!authenticator) {
+            throw new Error(`Could not find authenticator ${body.id} for user ${user.id}`);
+        }
+
+        let verification = await verifyAuthenticationResponse({
+            credential: body,
+            expectedChallenge,
+            expectedOrigin: origin,
+            expectedRPID: rpID,
+            authenticator,
+        });
+
+        if (verification.verified) {
+            res.status(200).json({
+                success: true,
+                options,
+            });
+            const { authenticationInfo } = verification;
+            const { newCounter } = authenticationInfo;
+            const counter = await User.findByIdAndUpdate(user.id, { 'authenticators.$.counter': newCounter });
+            if (!counter) {
+                throw new Error(`Could not update counter for user ${user.id}`);
+            }
+        } else {
+            res.status(500).json({ success: false, message: 'Authentication failed' });
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}

@@ -3,7 +3,7 @@ const router = express.Router();
 const sessions = require('../middlewares/sessions');
 
 // Import controllers
-const { registerRequest, registerResponse } = require('../controllers/webauthn');
+const { registerRequest, registerResponse, signInRequest, signInResponse } = require('../controllers/webauthn');
 const { checkSession } = require('../auth/sessions');
 
 
@@ -26,5 +26,7 @@ router.use(sessions);
 
 router.post('/registerRequest', checkSession , registerRequest);
 router.post('/registerResponse', checkSession , registerResponse);
+router.post('/signInRequest', checkSession , signInRequest);
+router.post('/signInResponse', checkSession , signInResponse);
 
 module.exports = router;
