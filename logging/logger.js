@@ -21,7 +21,6 @@ const fileFormat = printf(({ level, message, timestamp, ...metadata }) => {
   return JSON.stringify(log)
 });
 
-
 const options = {
   file: {
     level: 'info',

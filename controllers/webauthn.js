@@ -3,7 +3,7 @@ const {
     verifyRegistrationResponse,
 } = require('@simplewebauthn/server');
 
-const User = require('../models/user');
+const { User, UserAuth } = require('../models/user');
 
 const rpName = 'SimpleWebAuthn Example';
 const rpID = 'localhost';
@@ -12,7 +12,8 @@ const origin = `https://${rpID}`;
 exports.registerRequest = async (req, res, next) => {
     try {
         const user = req.session.user;
-        const userAuthenticators = user.authenticators;
+        const _userauth = await UserAuth.find({ userID: user.id });
+        const userAuthenticators = _userauth.authenticators;
 
         const options = generateRegistrationOptions({
             rpName,
@@ -69,7 +70,7 @@ exports.registerResponse = async (req, res, next) => {
                 counter,
             };
 
-            const user = await User.findByIdAndUpdate(req.session.user.id, { $push: { authenticators: newAuthenticator } });
+            const user = await UserAuth.findByIdAndUpdate(req.session.user.id, { $push: { authenticators: newAuthenticator } });
             if (!user) {
                 throw new ErrorResponse('Could not add user', 404);
             }
@@ -92,7 +93,8 @@ exports.registerResponse = async (req, res, next) => {
 exports.signInRequest = async (req, res, next) => {
     try {
         const user = req.session.user;
-        const userAuthenticators = user.authenticators;
+        const _userauth = await UserAuth.find({ userID: user.id });
+        const userAuthenticators = _userauth.authenticators;
 
         const options = generateAuthenticationOptions({
             // Require users to use a previously-registered authenticator
@@ -120,7 +122,7 @@ exports.signInResponse = async (req, res, next) => {
         const { body } = req;
         const user = req.session.user;
         const expectedChallenge = req.session.userChallenge;
-        const authenticator = await User.find({ 'authenticators.credentialID': body.id });
+        const authenticator = await UserAuth.find({ 'authenticators.credentialID': body.id });
 
         if (!authenticator) {
             throw new Error(`Could not find authenticator ${body.id} for user ${user.id}`);
@@ -141,7 +143,7 @@ exports.signInResponse = async (req, res, next) => {
             });
             const { authenticationInfo } = verification;
             const { newCounter } = authenticationInfo;
-            const counter = await User.findByIdAndUpdate(user.id, { 'authenticators.$.counter': newCounter });
+            const counter = await UserAuth.findByIdAndUpdate(user.id, { 'authenticators.$.counter': newCounter });
             if (!counter) {
                 throw new Error(`Could not update counter for user ${user.id}`);
             }

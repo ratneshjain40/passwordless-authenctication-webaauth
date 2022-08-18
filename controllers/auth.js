@@ -1,6 +1,6 @@
-const passwords = require( '../utils/passwords' );
-const User = require( '../models/user' );
-const ErrorResponse = require( '../utils/errorResponse');
+const passwords = require('../utils/passwords');
+const { User } = require('../models/user');
+const ErrorResponse = require('../utils/errorResponse');
 
 exports.registerUser = async (req, res, next) => {
 	try {
