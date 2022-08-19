@@ -15,4 +15,11 @@ function genPassword(password) {
     };
 }
 
-module.exports = { validPassword, genPassword };
+function randomToken(size = 21) {
+    return Crypto
+        .randomBytes(size)
+        .toString('base64')
+        .slice(0, size)
+}
+
+module.exports = { validPassword, genPassword, randomToken };
