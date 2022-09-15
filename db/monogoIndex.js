@@ -1,7 +1,7 @@
-const { MongoClient } = require("mongodb");
+import { MongoClient } from "mongodb";
 
-const dotenv = require("dotenv");
-dotenv.config({ path: "./config/config.env" });
+import { config } from "dotenv";
+config({ path: "./config/config.env" });
 
 const uri = process.env.MONGO_DB_URI;
 const client = new MongoClient(uri);
@@ -19,4 +19,4 @@ async function createIndex(db, collections, index) {
 	}
 }
 
-module.exports = createIndex
+export default createIndex

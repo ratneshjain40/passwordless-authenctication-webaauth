@@ -1,4 +1,4 @@
-const { transports, config, format, createLogger } = require('winston')
+import { transports, config, format, createLogger } from 'winston';
 const { combine, timestamp, printf, splat, errors } = format;
 
 const consoleFormat = printf(({ level, message, timestamp, stack }) => {
@@ -77,4 +77,4 @@ const logger = createLogger({
   exitOnError: false
 })
 
-module.exports = logger
+export default logger

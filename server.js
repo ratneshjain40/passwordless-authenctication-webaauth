@@ -1,30 +1,32 @@
-const express = require("express");
-const cors = require("cors");
+import express, { json, urlencoded } from "express";
+import cors from "cors";
 
 //-------------- Import Routes and config ----------------
 
-const dotenv = require("dotenv");
-dotenv.config({ path: "./config/config.env" });
+import { config } from "dotenv";
+config({ path: "./config/config.env" });
 
-const connectDb = require("./utils/connectDb");
+import connectDb from './db/connectDb.js';
 const db = connectDb();
 
-const auth = require("./routes/auth");
-const webauthn = require("./routes/webauthn");
-const error = require("./middlewares/error");
+import auth from './routes/auth.js';
+import webauthn from './routes/webauthn.js';
+import proxyauth from './routes/proxyauth.js';
+import error from './middlewares/error.js';
 
 //-------------- GENERAL SETUP ----------------
 
 const app = express();
 
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
 //-------------- Routes Middleware ----------------
 
 app.use("/auth", auth);
 app.use("/webauthn", webauthn);
+app.use("/proxy", proxyauth);
 
 //-------------- Error Middleware ----------------
 

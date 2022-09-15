@@ -1,8 +1,8 @@
 // Can throw a custom error with next(new ErrorResponse(message, statusCode))
-const logger = require('../logging/logger');
-const ErrorResponse = require('../utils/errorResponse');
+import logger from '../logging/logger.js';
+import ErrorResponse from '../utils/errorResponse.js';
 
-errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
 	// log error
 	logger.error(err);
 
@@ -34,4 +34,4 @@ errorHandler = (err, req, res, next) => {
 	});
 };
 
-module.exports = errorHandler;
+export default errorHandler;

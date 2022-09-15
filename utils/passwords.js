@@ -1,13 +1,13 @@
-const crypto = require('crypto');
+import { pbkdf2Sync, randomBytes } from 'crypto';
 
 function validPassword(password, hash, salt) {
-    var hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    var hashVerify = pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
     return hash === hashVerify;
 }
 
 function genPassword(password) {
-    var salt = crypto.randomBytes(32).toString('hex');
-    var genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    var salt = randomBytes(32).toString('hex');
+    var genHash = pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
 
     return {
         salt: salt,
@@ -15,11 +15,8 @@ function genPassword(password) {
     };
 }
 
-function randomToken(size = 21) {
-    return Crypto
-        .randomBytes(size)
-        .toString('base64')
-        .slice(0, size)
+function randomUUID(size = 21) {
+    return randomBytes(size).toString('base64').replace(/\//g, '_').replace(/\+/g, '-').slice(0, size).toString('base64');
 }
 
-module.exports = { validPassword, genPassword, randomToken };
+export { genPassword, validPassword, randomUUID };

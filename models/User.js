@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+const { Schema, model } = mongoose;
 
-const userSchema = new mongoose.Schema({
+
+const userSchema = new Schema({
     username: {
         type: String,
         required: [true, "Please enter username"],
@@ -16,15 +18,15 @@ const userSchema = new mongoose.Schema({
     },
     authenticators: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.ObjectId,
             ref: "Authenticator",
         },
     ],
 });
 
-const authenticatorSchema = new mongoose.Schema({
+const authenticatorSchema = new Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
@@ -34,7 +36,7 @@ const authenticatorSchema = new mongoose.Schema({
     transports: [String],
 });
 
-const User = mongoose.model("User", userSchema);
-const Authenticator = mongoose.model("Authenticator", authenticatorSchema);
+const User = model("User", userSchema);
+const Authenticator = model("Authenticator", authenticatorSchema);
 
-module.exports = { User, Authenticator };
+export { User, Authenticator };

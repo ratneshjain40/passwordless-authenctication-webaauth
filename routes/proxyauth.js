@@ -1,9 +1,9 @@
 import { Router } from "express";
 const router = Router();
-import { session_middleware } from "../middlewares/sessions.js";
+import { session_middleware, checkSession } from "../middlewares/sessions.js";
 
 // Import controllers
-import { registerUser, loginUser, isLoggedIn, logoutUser } from "../controllers/auth.js";
+import { createProxy } from "../controllers/proxyauth.js";
 
 router.use(session_middleware);
 
@@ -20,10 +20,6 @@ router.use(session_middleware);
 // router.use(custom_middle);
 
 // ---------------- ROUTES ----------------
-
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.get("/logout", logoutUser);
-router.get("/islogged", isLoggedIn);
+router.post("/create", checkSession, createProxy);
 
 export default router;

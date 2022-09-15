@@ -1,22 +1,22 @@
-const {
+import {
     generateRegistrationOptions,
     verifyRegistrationResponse,
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
-} = require("@simplewebauthn/server");
+} from "@simplewebauthn/server";
 
-const base64url = require("base64url");
+import base64url from "base64url";
+const { encode, toBuffer } = base64url;
 
-const ErrorResponse = require("../utils/errorResponse");
+import ErrorResponse from "../utils/errorResponse.js";
 
-const { User, Authenticator } = require("../models/user");
-const { randomToken } = require("../utils/passwords");
+import { User, Authenticator } from "../models/user.js";
 
 const rpName = "SimpleWebAuthn Example";
 const rpID = "localhost";
 const origin = `http://${rpID}:3000`;
 
-exports.registerRequest = async (req, res, next) => {
+export async function registerRequest(req, res, next) {
     try {
         // Telling the browser what type of authenticator we want to use and sending the challenge
         const user = req.session.user;
@@ -53,9 +53,9 @@ exports.registerRequest = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}
 
-exports.registerResponse = async (req, res, next) => {
+export async function registerResponse(req, res, next) {
     // verifing the challenge and origin from the browser,
     // if they match, then we can register the authenticator with the given credential
     try {
@@ -75,8 +75,8 @@ exports.registerResponse = async (req, res, next) => {
 
             const authenticator = await Authenticator.create({
                 user: req.session.user._id,
-                credentialID: base64url.encode(credentialID),
-                credentialPublicKey: base64url.encode(credentialPublicKey),
+                credentialID: encode(credentialID),
+                credentialPublicKey: encode(credentialPublicKey),
                 counter,
                 transports: ["internal"],
             });
@@ -97,9 +97,9 @@ exports.registerResponse = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}
 
-exports.signInRequest = async (req, res, next) => {
+export async function signInRequest(req, res, next) {
     // Giving the browser the challenge and the options to sign in with authenticator previously registered
     try {
         const user = await User.findById(req.session.user._id);
@@ -111,7 +111,7 @@ exports.signInRequest = async (req, res, next) => {
             rpName,
             rpID,
             allowCredentials: userAuthenticators.map((authenticator) => ({
-                id: base64url.toBuffer(authenticator.credentialID),
+                id: toBuffer(authenticator.credentialID),
                 type: "public-key",
                 transports: authenticator.transports,
             })),
@@ -127,9 +127,9 @@ exports.signInRequest = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}
 
-exports.signInResponse = async (req, res, next) => {
+export async function signInResponse(req, res, next) {
     // cross checking the produced credentials with the ones in the database
     try {
         const { body } = req;
@@ -145,10 +145,8 @@ exports.signInResponse = async (req, res, next) => {
             throw new ErrorResponse("Authenticator not found", 404);
         }
         const authenticatorObject = {
-            credentialID: base64url.toBuffer(authenticator.credentialID),
-            credentialPublicKey: base64url.toBuffer(
-                authenticator.credentialPublicKey
-            ),
+            credentialID: toBuffer(authenticator.credentialID),
+            credentialPublicKey: toBuffer(authenticator.credentialPublicKey),
             counter: authenticator.counter,
         };
 
@@ -195,25 +193,4 @@ exports.signInResponse = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
-
-exports.getRemoteToken = async (req, res, next) => {
-    try {
-        const token = randomToken(32);
-        req.session.remoteToken = {
-            token: token,
-            time: Date.now(),
-            used: false,
-        };
-        const valid = await req.session.save();
-        if (!valid) {
-            throw new ErrorResponse("Could not save session", 500);
-        }
-        res.status(200).json({
-            success: true,
-            token,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+}

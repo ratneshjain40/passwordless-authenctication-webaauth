@@ -1,13 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const sessions = require('../middlewares/sessions');
+import { Router } from "express";
+const router = Router();
+import { session_middleware, checkSession } from "../middlewares/sessions.js";
 
 // Import controllers
-const { registerRequest, registerResponse, signInRequest, signInResponse } = require('../controllers/webauthn');
-const { checkSession } = require('../auth/sessions');
+import { registerRequest, registerResponse, signInRequest, signInResponse } from "../controllers/webauthn.js";
 
-
-router.use(sessions);
+router.use(session_middleware);
 
 // ---------------- DEBBUGING ----------------
 
@@ -21,12 +19,11 @@ router.use(sessions);
 // }
 // router.use(custom_middle);
 
-
 // ---------------- ROUTES ----------------
 
-router.post('/registerRequest', checkSession , registerRequest);
-router.post('/registerResponse', checkSession , registerResponse);
-router.post('/signInRequest', checkSession , signInRequest);
-router.post('/signInResponse', checkSession , signInResponse);
+router.post("/registerRequest", checkSession, registerRequest);
+router.post("/registerResponse", checkSession, registerResponse);
+router.post("/signInRequest", checkSession, signInRequest);
+router.post("/signInResponse", checkSession, signInResponse);
 
-module.exports = router;
+export default router;
