@@ -1,10 +1,8 @@
-import { Client } from "redis-om";
+import Redis from "ioredis";
 
 import { config } from "dotenv";
 config({ path: "./config/config.env" });
 
-const url = process.env.REDIS_URL;
+let redisClient = new Redis(path = process.env.REDIS_URL);
 
-const client = await new Client().open(url)
-
-export default client;
+export default redisClient;

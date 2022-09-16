@@ -19,7 +19,7 @@ const origin = `http://${rpID}:3000`;
 export async function registerRequest(req, res, next) {
     try {
         // Telling the browser what type of authenticator we want to use and sending the challenge
-        const user = req.session.user;
+        const user = await User.findById(req.session.user._id);
         const userAuthenticators = await Authenticator.find({ user: user._id });
 
         const options = generateRegistrationOptions({
@@ -73,6 +73,8 @@ export async function registerResponse(req, res, next) {
             const { credentialPublicKey, credentialID, counter } =
                 registrationInfo;
 
+            // add authenticator if permission is user, add to redis if permission is guest
+
             const authenticator = await Authenticator.create({
                 user: req.session.user._id,
                 credentialID: encode(credentialID),
@@ -102,6 +104,7 @@ export async function registerResponse(req, res, next) {
 export async function signInRequest(req, res, next) {
     // Giving the browser the challenge and the options to sign in with authenticator previously registered
     try {
+        // Sign In with user_name insted of session_id
         const user = await User.findById(req.session.user._id);
         // console.log(user);
         const userAuthenticators = await Authenticator.find({ user: user._id });
@@ -181,6 +184,7 @@ export async function signInResponse(req, res, next) {
         }
 
         if (verification.verified) {
+            // set session here
             res.status(200).json({
                 success: true,
             });

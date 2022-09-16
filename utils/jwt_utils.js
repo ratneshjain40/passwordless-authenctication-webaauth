@@ -1,18 +1,16 @@
-import { sign, verify } from "jsonwebtoken";
+import jsonwebtoken from "jsonwebtoken";
+const { sign, verify } = jsonwebtoken;
 
 import { config } from "dotenv";
 config({ path: "./config/config.env" });
 
 const key = process.env.TOKEN_KEY;
 
-function issueJWT(data) {
-    const _id = data._id;
-
+export function issueJWT(data) {
     // The time the token is valid for
     const expiresIn = "1d";
 
     const payload = {
-        sub: _id,
         data: data,
         iat: Date.now(),
     };
@@ -27,7 +25,7 @@ function issueJWT(data) {
     };
 }
 
-function verifyJWT(token) {
+export function verifyJWT(token) {
     var payload;
     try {
         payload = verify(token, key);

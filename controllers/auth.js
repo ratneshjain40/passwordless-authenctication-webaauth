@@ -1,6 +1,7 @@
 import { genPassword, validPassword } from "../utils/passwords.js";
 import { User } from "../models/user.js";
 import ErrorResponse from "../utils/errorResponse.js";
+import { PERMISSIONS } from "../middlewares/permissions.js";
 
 export async function registerUser(req, res, next) {
     try {
@@ -40,6 +41,7 @@ export async function loginUser(req, res, next) {
 
         const session_user_data = {
                 _id: user._id.toString(),
+                permissions: PERMISSIONS.USER,
         };
 
         req.session.user = session_user_data;

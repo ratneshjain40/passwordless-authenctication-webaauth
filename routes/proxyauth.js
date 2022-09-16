@@ -3,7 +3,6 @@ const router = Router();
 import { session_middleware, checkSession } from "../middlewares/sessions.js";
 
 // Import controllers
-import { createProxy } from "../controllers/proxyauth.js";
 
 router.use(session_middleware);
 
@@ -20,6 +19,5 @@ router.use(session_middleware);
 // router.use(custom_middle);
 
 // ---------------- ROUTES ----------------
-router.post("/create", checkSession, createProxy);
 
 export default router;

@@ -1,11 +1,13 @@
 import { Router } from "express";
 const router = Router();
 import { session_middleware, checkSession } from "../middlewares/sessions.js";
+import { checkPermissionLevel } from "../middlewares/permissions.js";
 
 // Import controllers
 import { registerRequest, registerResponse, signInRequest, signInResponse } from "../controllers/webauthn.js";
 
 router.use(session_middleware);
+router.use(checkPermissionLevel("GUEST"));
 
 // ---------------- DEBBUGING ----------------
 
