@@ -1,15 +1,17 @@
-import { Entity, Schema } from "redis-om";
-import client from "../db/redis.js";
+import { Entity, Schema, Client, Repository } from "redis-om";
+
+let client = new Client();
+await client.open("redis://localhost:6379");
 
 class ProxyAuth extends Entity {}
 const ProxyAuthSchema = new Schema(ProxyAuth, {
-    proxy_id: { type: "string" },
     user_id: { type: "string" },
+    proxy_type: { type: "string" },
     valid: { type: "boolean" },
     used: { type: "boolean" },
 });
 
-const proxyAuthRepository = client.fetchRepository(ProxyAuthSchema);
+let proxyAuthRepository = new Repository(ProxyAuthSchema, client);
 
 await proxyAuthRepository.dropIndex();
 await proxyAuthRepository.createIndex();
