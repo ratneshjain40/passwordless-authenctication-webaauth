@@ -11,6 +11,7 @@ import {
     signInResponse,
 } from "../controllers/webauthn.js";
 import { proxyIdUse, proxyIdCheck } from "../middlewares/proxyauth.js";
+import { proxyAuthCreate, proxyAuthCheck } from "../controllers/proxyauth.js";
 
 router.use(session_middleware);
 router.use(checkPermissionLevel("GUEST"));
@@ -33,5 +34,6 @@ router.post("/registerRequest", checkSession, proxyIdCheck, registerRequest);
 router.post("/registerResponse", checkSession, proxyIdCheck, registerResponse, proxyIdUse);
 router.post("/signInRequest", proxyIdCheck, signInRequest);
 router.post("/signInResponse", proxyIdCheck, signInResponse, proxyIdUse);
+router.post("/proxyCreate", proxyAuthCreate);
 
 export default router;
