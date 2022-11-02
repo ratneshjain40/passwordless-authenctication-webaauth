@@ -30,7 +30,7 @@ router.use(checkPermissionLevel('GUEST'));
 
 router.post('/registerRequest', checkSession, registerRequest);
 router.post('/registerResponse', checkSession, registerResponse);
-router.post('/signInRequest', checkSession, signInRequest);
-router.post('/signInResponse', checkSession, signInResponse);
+router.post('/signInRequest', signInRequest);
+router.post('/signInResponse', signInResponse);
 
 export default router;

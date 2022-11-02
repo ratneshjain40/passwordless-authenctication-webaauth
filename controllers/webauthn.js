@@ -89,10 +89,14 @@ export async function registerResponse(req, res, next) {
 
             delete req.session.challenge;
 
-            res.status(200).json({
-                success: true,
-                message: "Registration successful",
-            });
+            if (req.params.id) {
+                next();
+            } else {
+                res.status(200).json({
+                    success: true,
+                    message: "Registration successful",
+                });
+            }
         } else {
             throw new ErrorResponse("Registration failed", 500);
         }
@@ -105,7 +109,7 @@ export async function signInRequest(req, res, next) {
     // Giving the browser the challenge and the options to sign in with authenticator previously registered
     try {
         // Sign In with user_name insted of session_id
-        const user = await User.findById(req.session.user._id);
+        const user = await User.findOne({ username: req.body.username });
         // console.log(user);
         const userAuthenticators = await Authenticator.find({ user: user._id });
 
@@ -137,7 +141,7 @@ export async function signInResponse(req, res, next) {
     try {
         const { body } = req;
         const expectedChallenge = req.session.userChallenge;
-        const user = await User.findById(req.session.user._id);
+        const user = await User.findOne({ username: req.body.username });
 
         let authenticator = await Authenticator.findOne({
             user: user._id,
@@ -184,10 +188,13 @@ export async function signInResponse(req, res, next) {
         }
 
         if (verification.verified) {
-            // set session here
-            res.status(200).json({
-                success: true,
-            });
+            if (req.params.id) {
+                next();
+            } else {
+                res.status(200).json({
+                    success: true,
+                });
+            }
         } else {
             res.status(500).json({
                 success: false,
