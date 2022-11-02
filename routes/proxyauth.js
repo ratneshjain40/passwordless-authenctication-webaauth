@@ -34,6 +34,6 @@ router.post("/registerRequest", checkSession, proxyIdCheck, registerRequest);
 router.post("/registerResponse", checkSession, proxyIdCheck, registerResponse, proxyIdUse);
 router.post("/signInRequest", proxyIdCheck, signInRequest);
 router.post("/signInResponse", proxyIdCheck, signInResponse, proxyIdUse);
-router.post("/proxyCreate", proxyAuthCreate);
+router.post("/create", proxyAuthCreate);
 
 export default router;
