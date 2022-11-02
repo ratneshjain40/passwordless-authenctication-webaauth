@@ -1,9 +1,12 @@
 import ErrorResponse from "../utils/errorResponse.js";
 import proxyAuthRepository from "../models/ProxyAuth.js";
+import { User } from "../models/user.js";
 
 export async function proxyAuthCreate(req, res, next) {
     try {
         let entity, id;
+
+        let user = User.findOne({ username: req.body.username });
 
         if (
             !(
@@ -16,7 +19,7 @@ export async function proxyAuthCreate(req, res, next) {
 
         entity = proxyAuthRepository.createEntity();
 
-        entity.user_id = req.session.user._id;
+        entity.user_id = user._id;
         entity.proxy_type = req.body.proxy_type;
         entity.valid = true;
         entity.used = false;
