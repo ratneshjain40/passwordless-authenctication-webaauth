@@ -1,13 +1,18 @@
-import { Router } from "express";
+import { Router } from 'express';
 const router = Router();
-import { session_middleware, checkSession } from "../middlewares/sessions.js";
-import { checkPermissionLevel } from "../middlewares/permissions.js";
+import { session_middleware, checkSession } from '../middlewares/sessions.js';
+import { checkPermissionLevel } from '../middlewares/permissions.js';
 
 // Import controllers
-import { registerRequest, registerResponse, signInRequest, signInResponse } from "../controllers/webauthn.js";
+import {
+	registerRequest,
+	registerResponse,
+	signInRequest,
+	signInResponse,
+} from '../controllers/webauthn.js';
 
 router.use(session_middleware);
-router.use(checkPermissionLevel("GUEST"));
+router.use(checkPermissionLevel('GUEST'));
 
 // ---------------- DEBBUGING ----------------
 
@@ -23,9 +28,9 @@ router.use(checkPermissionLevel("GUEST"));
 
 // ---------------- ROUTES ----------------
 
-router.post("/registerRequest", checkSession, registerRequest);
-router.post("/registerResponse", checkSession, registerResponse);
-router.post("/signInRequest", checkSession, signInRequest);
-router.post("/signInResponse", checkSession, signInResponse);
+router.post('/registerRequest', checkSession, registerRequest);
+router.post('/registerResponse', checkSession, registerResponse);
+router.post('/signInRequest', checkSession, signInRequest);
+router.post('/signInResponse', checkSession, signInResponse);
 
 export default router;
