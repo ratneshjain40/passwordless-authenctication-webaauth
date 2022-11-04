@@ -1,64 +1,61 @@
-import ErrorResponse from "../utils/errorResponse.js";
-import proxyAuthRepository from "../models/ProxyAuth.js";
-import { User } from "../models/user.js";
+import ErrorResponse from '../utils/errorResponse.js';
+import proxyAuthRepository from '../models/ProxyAuth.js';
+import { User } from '../models/user.js';
 
 export async function proxyAuthCreate(req, res, next) {
-    try {
-        let entity, id;
+	try {
+		let entity, id;
 
-        let user = User.findOne({ username: req.body.username });
+		let user = await User.findOne({ username: req.body.username });
 
-        if (
-            !(
-                req.body.proxy_type == "register" ||
-                req.body.proxy_type == "signin"
-            )
-        ) {
-            throw new ErrorResponse("Invalid proxy type", 400);
-        }
+		if (
+			!(req.body.proxy_type == 'register' || req.body.proxy_type == 'signin')
+		) {
+			throw new ErrorResponse('Invalid proxy type', 400);
+		}
 
-        entity = proxyAuthRepository.createEntity();
+		entity = proxyAuthRepository.createEntity();
 
-        entity.user_id = user._id;
-        entity.proxy_type = req.body.proxy_type;
-        entity.valid = true;
-        entity.used = false;
+		entity.user_id = user._id.toString();
+		entity.proxy_type = req.body.proxy_type;
+		entity.valid = true;
+		entity.used = false;
 
-        id = await proxyAuthRepository.save(entity);
+		id = await proxyAuthRepository.save(entity);
 
-        res.status(200).json({
-            success: true,
-            id,
-        });
-    } catch (error) {
-        next(error);
-    }
+		res.status(200).json({
+			success: true,
+			id,
+		});
+	} catch (error) {
+		next(error);
+	}
 }
 
 export async function proxyAuthCheck(req, res, next) {
-    try {
-        let id = req.body.id;
+	try {
+		let id = req.body.id;
 
-        if (!id) {
-            throw new ErrorResponse("Missing id", 400);
-        }
+		if (!id) {
+			throw new ErrorResponse('Missing id', 400);
+		}
 
-        let entity = await proxyAuthRepository.fetch(id);
-        if (!entity) {
-            throw new ErrorResponse("Could not find entity", 404);
-        }
-        if (entity.used === true && entity.valid === true) {
-            res.status(200).json({
-                success: true,
-                id,
-            });
-        } else {
-            res.status(200).json({
-                success: false,
-                id,
-            });
-        }
-    } catch (error) {
-        next(error);
-    }
+		let entity = await proxyAuthRepository.fetch(id);
+		if (!entity) {
+			throw new ErrorResponse('Could not find entity', 404);
+		}
+		if (entity.used === true && entity.valid === true) {
+			res.status(200).json({
+				success: true,
+				id,
+			});
+		} else {
+			res.status(200).json({
+				success: false,
+				id,
+			});
+		}
+	} catch (error) {
+		next(error);
+	}
 }
